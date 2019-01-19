@@ -39,6 +39,7 @@ date = '01.22.1001'
 date = '1.12.1001'
 date = '-2.10.3001'
 
+print("\nTask 2")
 firstPoint=date.index(".")
 secondPoint=date.index(".",firstPoint+1)
 print(firstPoint)
@@ -95,12 +96,26 @@ else:
 # Вход: 11
 # Выход: 5 3
 
+import math
+print("\nTask 3")
 N=int(input("введите комнату: "))
-index=0
-part=0
-while N>index:
-    part+=1
-    index+=part**2
-print (part)
-print(index)
+maxRoom=0 #номер последней квартиры в блоке
+block=0 #номер блока квартир(1-1, 2-2,3,4,5, 3-6,7,8...)
+while N>maxRoom:
+    block+=1
+    maxRoom+= block ** 2
+minRoom=maxRoom-block**2
+etaj=0 #этаж
+for i in range(0,block):
+    etaj+=i
+etaj+=1
+nomer=0 #порядковый номер слева
+while minRoom<N:
+    minRoom+=1
+    nomer+=1
+    if nomer>block:
+        nomer=1
+        etaj+=1
+print("etaj",etaj)
+print("nomer",nomer)
 
