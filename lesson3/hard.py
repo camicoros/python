@@ -77,6 +77,55 @@ print(my_drob("-5 5/10 + -5 3/10"))
 # они получают удвоенную ЗП, пропорциональную норме.
 # Кол-во часов, которые были отработаны, указаны в файле "data/hours_of"
 
+print("\nTask2")
+import os
+path_to_workers=os.path.join("data","workers.txt")
+workers=[]
+
+def read_file(path):
+    with open(path, "r") as w:
+        mass=[]
+        line = w.readline()
+        words = line.split(" ")
+        redact_words = []
+        for word in words:
+            if word != "":
+                word=word.rstrip("\n")
+                redact_words.append(word)
+        # создаём словарь
+        worker = dict.fromkeys(redact_words)
+        # считываем данные
+        lines = w.readlines()
+        for line in lines:
+            words = line.split(" ")
+            redact_words = []
+            for word in words:
+                if word != "":
+                    word = word.rstrip("\n")
+                    redact_words.append(word)
+            iter = 0
+            for key in worker.keys():
+                worker[key] = redact_words[iter]
+                iter += 1
+            mass.append(worker.copy())
+    return mass
+
+workers=read_file(path_to_workers)
+
+#в файле пришлось изменить "Отработано часов" на "Отработано_часов" т.к split разделял их на разные части
+path_to_hours=os.path.join("data","hours_of.txt")
+hours=[]
+hours=read_file(path_to_hours)
+
+#сравниваем строки и считаем:
+for worker in workers:
+    for hour in hours:
+        if worker["Имя"]==hour["Имя"] and worker["Фамилия"]==hour["Фамилия"]:
+            salary=int(worker["Зарплата"])
+            norma=int(worker["Норма_часов"])
+            otrabotal=int(hour["Отработано_часов"])
+            salary=salary + salary/norma*(otrabotal-norma)
+            print("{} {}: {} \nразница по норме: {}".format(worker["Имя"],worker["Фамилия"],salary,otrabotal-norma))
 
 # Задание-3:
 # Дан файл ("data/fruits") со списком фруктов.
@@ -90,3 +139,29 @@ print(my_drob("-5 5/10 + -5 3/10"))
 # Подсказка:
 # Чтобы получить список больших букв русского алфавита:
 # print(list(map(chr, range(ord('А'), ord('Я')+1))))
+
+print("\nTask3")
+import os.path
+bigLetters=list(map(chr, range(ord('А'), ord('Я')+1)))
+path=os.path.join("data","fruits.txt")
+folder="new_fruits"
+#создаем папку, куда будем записывать новвые файлы
+if not os.path.exists(folder):
+    os.mkdir(folder)
+#очищаем её от предыдущих использований
+for root, dirs, files in os.walk(folder,topdown=False):
+    for name in files:
+        os.remove(os.path.join(root, name))
+
+with open(path,"r") as f:
+    fruits = f.readlines()
+    for letter in bigLetters:
+        listOfFruits=[]
+        for fruit in fruits:
+            if letter==fruit[0].upper():
+                listOfFruits.append(fruit)
+        if len(listOfFruits)>0:
+            pathToWrite=os.path.join(folder,"fruits_"+letter+".txt")
+            with open(pathToWrite,"w",encoding="UTF-8") as w:
+                w.writelines(listOfFruits.copy())
+            print("В файл {} записано {} фруктов".format("fruits_"+letter, len(listOfFruits)))
