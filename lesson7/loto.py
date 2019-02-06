@@ -200,4 +200,5 @@ while winner=="":
         winner=computer.get_name()
     elif condition3=="win":
         winner = player.get_name()
-    print("{} wins!!!".format(winner))
+    if winner!="":
+        print("{} wins!!!".format(winner))
