@@ -71,7 +71,7 @@ class Bochonok:
 class Lottery_card:
     def __init__(self, name):
         self.bochonok = Bochonok()
-        self.card = []
+        self.card = [[],[],[]]
         self.make_card()  # лотерейный билет
         self.__name = name
 
@@ -82,25 +82,27 @@ class Lottery_card:
         -выбирает список номеров, которыми эти позиции будут заполнены
         -заполняет карточку
         '''
-        list_of_positions = []
         # заполняем карточку нулями
-        # создаем список из 27 последовательных номеров
         for i in range(0, 27):
-            list_of_positions.append(i)
-            self.card.append(" ")
+            self.card[i%3].append(" ")
         list_of_numbers = []
-        new_list_of_positions = []
         for i in range(0, 15):
-            m = self.bochonok.get_number(list_of_positions)
             n = self.bochonok.get_number(self.bochonok.container)
             list_of_numbers.append(n)
-            new_list_of_positions.append(m)
         list_of_numbers.sort()
-        new_list_of_positions.sort()
-        counter = 0
-        for i in new_list_of_positions:
-            self.card[i] = list_of_numbers[counter]
-            counter += 1
+
+        for i in self.card:
+            while i.count(" ")>4:
+                position=random.randint(0,8)
+                if i[position]==" ":
+                    i[position]="_"
+
+        counter=0
+        for i in range(0,9):
+            for j in range(0,3):
+                if self.card[j][i]=="_":
+                    self.card[j][i]=list_of_numbers[counter]
+                    counter+=1
 
     def get_name(self):
         return self.__name
@@ -110,22 +112,8 @@ class Lottery_card:
         вывод карточки
         '''
         print("-- {}'s lottery card ---".format(self.__name))
-
-        s = ["", "", ""]
-        counter = 0
         for i in self.card:
-            if i != " " and i != "- ":
-                if int(i) // 10 == 0:
-                    s[counter % 3] += str(i) + "  "
-                else:
-                    s[counter % 3] += str(i) + " "
-            elif i == " ":
-                s[counter % 3] += str(i) + "  "
-            else:
-                s[counter % 3] += str(i) + " "
-            counter += 1
-        for i in s:
-            print(i)
+            print("{0[0]:>2} {0[1]:>2} {0[2]:>2} {0[3]:>2} {0[4]:>2} {0[5]:>2} {0[6]:>2} {0[7]:>2} {0[8]:>2}".format(i))
         print("--------------------------")
 
     def check_the_win(self):
@@ -133,12 +121,18 @@ class Lottery_card:
         Проверка на выигрыш
         :return:в случае победы возвращает строку с победителем, иначе пустую строку
         '''
-        n = self.card.count("- ")
+        n = self.find_number("-")
         if n == 15:
             return "win"
         else:
             return ""
 
+    def find_number(self, number):
+        n=0
+        for i in self.card:
+            if i.count(number)>0:
+                n=i.count(number)
+        return n
 
 class Card_for_computer(Lottery_card):
     '''
@@ -153,9 +147,12 @@ class Card_for_computer(Lottery_card):
         зачеркивает номера в карточке
         :param number: номер, который необходимо зачеркнуть
         '''
-        n = self.card.count(number)
+        n = self.find_number(number)
         if n == 1:
-            self.card[self.card.index(number)] = "- "
+            for i in range(len(self.card)):
+                for j in range(len(self.card[i])):
+                    if self.card[i][j]==number:
+                        self.card[i][j] = "-"
 
 
 class Card_for_player(Lottery_card):
@@ -174,11 +171,15 @@ class Card_for_player(Lottery_card):
         :param answer: ответ игрока
         :return: в случае победы возвращает строку с победителем, иначе пустую строку
         '''
-        n = self.card.count(number)
+        n=self.find_number(number)
         if n == 1 and answer == "y":
-            self.card[self.card.index(number)] = "- "
+            for i in range(len(self.card)):
+                for j in range(len(self.card[i])):
+                    if self.card[i][j]==number:
+                        self.card[i][j] = "-"
             return ""
         elif (n == 1 and answer == "n") or (n == 0 and answer == "y"):
+            print(n)
             return "error"
         else:
             return ""
@@ -208,6 +209,7 @@ while winner == "":
     condition2 = computer.check_the_win()
     condition3 = player.check_the_win()
     if condition1 == "error":
+        print("NO,NO,NO!")
         winner = computer.get_name()
     elif condition2 == "win" and condition3 == "win":
         print("Both win! so strange...")
