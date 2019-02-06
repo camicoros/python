@@ -131,7 +131,7 @@ class Lottery_card:
         n=0
         for i in self.card:
             if i.count(number)>0:
-                n=i.count(number)
+                n+=i.count(number)
         return n
 
 class Card_for_computer(Lottery_card):
@@ -163,7 +163,7 @@ class Card_for_player(Lottery_card):
     def __init__(self, name):
         super().__init__(name)
 
-    def cross_the_number(self, number, answer):
+    def cross_the_number(self, number):
         '''
         Зачеркивает номера в карточке с учетом ответа,
         в случае неверного ответа побеждает компьтер
@@ -172,6 +172,10 @@ class Card_for_player(Lottery_card):
         :return: в случае победы возвращает строку с победителем, иначе пустую строку
         '''
         n=self.find_number(number)
+        answer = input("Зачеркнуть выпавший номер? (y/n)")
+        # проверка ответа игрока
+        while answer != "y" and answer != "n":
+            answer = input("Зачеркнуть выпавший номер? (y/n)")
         if n == 1 and answer == "y":
             for i in range(len(self.card)):
                 for j in range(len(self.card[i])):
@@ -179,7 +183,6 @@ class Card_for_player(Lottery_card):
                         self.card[i][j] = "-"
             return ""
         elif (n == 1 and answer == "n") or (n == 0 and answer == "y"):
-            print(n)
             return "error"
         else:
             return ""
@@ -200,12 +203,7 @@ while winner == "":
     list_of_bochonki.append(number)
     print("Выпал номер: {}".format(number))
     computer.cross_the_number(number)
-    answer = input("Зачеркнуть выпавший номер? (y/n)")
-    # проверка ответа игрока
-    while answer != "y" and answer != "n":
-        answer = input("Зачеркнуть выпавший номер? (y/n)")
-
-    condition1 = player.cross_the_number(number, answer)
+    condition1 = player.cross_the_number(number)
     condition2 = computer.check_the_win()
     condition3 = player.check_the_win()
     if condition1 == "error":
