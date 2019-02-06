@@ -52,11 +52,7 @@ class Randomizer:
         for i in range (1,91):
             self.container.append(i)
 
-    def get_container(self):
-        return self.container
-
-    @staticmethod
-    def get_number(container):
+    def get_number(self,container):
         '''
         получаем рандомое число, удаляем его из контейнера, чтобы избежать повторений
         :return: рандомое число
@@ -66,16 +62,28 @@ class Randomizer:
         return number
 
 class Bochonok(Randomizer):
+    '''
+    класс Мешок с бочонками
+    '''
     def __init__(self):
         super().__init__()
 
 class Card_for_computer(Randomizer):
+    '''
+    класс Лотерейная картока компьютера
+    '''
     def __init__(self):
         super().__init__()
         self.card=[] #лотерейный билет
         self.make_card()
 
     def make_card(self):
+        '''
+        создает лотерейную карточку
+        -выбирает позиции на карточке, которые будут заполнены
+        -выбирает список номеров, которыми эти позиции будут заполнены
+        -заполняет карточку
+        '''
         list_of_positions=[]
         for i in range(0,27):
             list_of_positions.append(i)
@@ -95,6 +103,9 @@ class Card_for_computer(Randomizer):
             counter+=1
 
     def print_card(self):
+        '''
+        вывод карточки
+        '''
         print("-- Карточка компьютера ---")
         s=["","",""]
         counter=0
@@ -114,11 +125,19 @@ class Card_for_computer(Randomizer):
         print("--------------------------")
 
     def cross_the_number(self,number):
+        '''
+        зачеркивает номера в карточке
+        :param number: номер, который необходимо зачеркнуть
+        '''
         n=self.card.count(number)
         if n==1:
             self.card[self.card.index(number)]="- "
 
     def check_the_win(self):
+        '''
+        Проверка на выигрыш
+        :return:
+        '''
         n = self.card.count("- ")
         if n==15:
             return "computer wins!!!"
@@ -126,10 +145,16 @@ class Card_for_computer(Randomizer):
             return ""
 
 class Card_for_player(Card_for_computer):
+    '''
+    класс Лотерейная карточка игрока
+    '''
     def __init__(self):
         super().__init__()
 
     def print_card(self):
+        '''
+        Вывод карточки игрока
+        '''
         print("------ Ваша карточка -----")
         s = ["", "", ""]
         counter = 0
@@ -149,6 +174,13 @@ class Card_for_player(Card_for_computer):
         print("--------------------------")
 
     def cross_the_number(self,number,answer):
+        '''
+        Зачеркивает номера в карточке с учетом ответа,
+        в случае неверного ответа побеждает компьтер
+        :param number: номер, который нужно зачеркнуть
+        :param answer: ответ игрока
+        :return:
+        '''
         n=self.card.count(number)
         if n==1 and answer=="y":
             self.card[self.card.index(number)]="- "
@@ -159,6 +191,10 @@ class Card_for_player(Card_for_computer):
             return ""
 
     def check_the_win(self):
+        '''
+        проверка выигрыша
+        :return:
+        '''
         n = self.card.count("- ")
         if n==15:
             return "player wins!!!"
@@ -169,10 +205,15 @@ player=Card_for_player()
 computer=Card_for_computer()
 b=Bochonok()
 winner=""
+list_of_bochonki=[]
+
 while winner=="":
+    print("=======================================")
+    print("Ранее выпали бочонки: {}".format(list_of_bochonki))
     player.print_card()
     computer.print_card()
     number=b.get_number(b.container)
+    list_of_bochonki.append(number)
     print("Выпал бочонок: {}".format(number))
     computer.cross_the_number(number)
     answer=input("Зачеркнуть цифру? (y/n)")
