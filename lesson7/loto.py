@@ -46,36 +46,34 @@
 """
 
 import random
+
+
 class Bochonok:
     '''
     класс Мешок с бочонками
     '''
+
     def __init__(self):
-        self.container=[]
-        for i in range (1,91):
+        self.container = []
+        for i in range(1, 91):
             self.container.append(i)
 
-    def get_number(self,container):
+    def get_number(self, container):
         '''
         получаем рандомое число, удаляем его из контейнера, чтобы избежать повторений
         :return: рандомое число
         '''
-        number=random.choice(container)
+        number = random.choice(container)
         container.remove(number)
         return number
 
-class Card_for_computer(Bochonok):
-    '''
-    класс Лотерейная картока компьютера
-    '''
-    def __init__(self, name):
-        super().__init__()
-        self.card = [] #лотерейный билет
-        self.make_card()
-        self.__name = name
 
-    def get_name(self):
-        return self.__name
+class Lottery_card:
+    def __init__(self, name):
+        self.bochonok = Bochonok()
+        self.card = []
+        self.make_card()  # лотерейный билет
+        self.__name = name
 
     def make_card(self):
         '''
@@ -84,54 +82,51 @@ class Card_for_computer(Bochonok):
         -выбирает список номеров, которыми эти позиции будут заполнены
         -заполняет карточку
         '''
-        list_of_positions=[]
-        for i in range(0,27):
+        list_of_positions = []
+        # заполняем карточку нулями
+        # создаем список из 27 последовательных номеров
+        for i in range(0, 27):
             list_of_positions.append(i)
             self.card.append(" ")
-        list_of_numbers=[]
-        new_list_of_positions=[]
-        for i in range(0,15):
-            m=self.get_number(list_of_positions)
-            n=self.get_number(self.container)
+        list_of_numbers = []
+        new_list_of_positions = []
+        for i in range(0, 15):
+            m = self.bochonok.get_number(list_of_positions)
+            n = self.bochonok.get_number(self.bochonok.container)
             list_of_numbers.append(n)
             new_list_of_positions.append(m)
         list_of_numbers.sort()
         new_list_of_positions.sort()
-        counter=0
+        counter = 0
         for i in new_list_of_positions:
-            self.card[i]=list_of_numbers[counter]
-            counter+=1
+            self.card[i] = list_of_numbers[counter]
+            counter += 1
+
+    def get_name(self):
+        return self.__name
 
     def print_card(self):
         '''
         вывод карточки
         '''
         print("-- {}'s lottery card ---".format(self.__name))
-        s=["","",""]
-        counter=0
+
+        s = ["", "", ""]
+        counter = 0
         for i in self.card:
-            if i!=" " and i!="- ":
-                if int(i)//10 == 0:
+            if i != " " and i != "- ":
+                if int(i) // 10 == 0:
                     s[counter % 3] += str(i) + "  "
                 else:
                     s[counter % 3] += str(i) + " "
-            elif i==" ":
+            elif i == " ":
                 s[counter % 3] += str(i) + "  "
             else:
                 s[counter % 3] += str(i) + " "
-            counter+=1
+            counter += 1
         for i in s:
-            print (i)
+            print(i)
         print("--------------------------")
-
-    def cross_the_number(self,number):
-        '''
-        зачеркивает номера в карточке
-        :param number: номер, который необходимо зачеркнуть
-        '''
-        n=self.card.count(number)
-        if n==1:
-            self.card[self.card.index(number)]="- "
 
     def check_the_win(self):
         '''
@@ -139,19 +134,39 @@ class Card_for_computer(Bochonok):
         :return:в случае победы возвращает строку с победителем, иначе пустую строку
         '''
         n = self.card.count("- ")
-        if n==15:
+        if n == 15:
             return "win"
         else:
             return ""
 
-class Card_for_player(Card_for_computer):
+
+class Card_for_computer(Lottery_card):
     '''
-    класс Лотерейная карточка игрока
+    класс Лотерейная карточка компьютера
     '''
+
     def __init__(self, name):
         super().__init__(name)
 
-    def cross_the_number(self,number,answer):
+    def cross_the_number(self, number):
+        '''
+        зачеркивает номера в карточке
+        :param number: номер, который необходимо зачеркнуть
+        '''
+        n = self.card.count(number)
+        if n == 1:
+            self.card[self.card.index(number)] = "- "
+
+
+class Card_for_player(Lottery_card):
+    '''
+    класс Лотерейная карточка игрока
+    '''
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def cross_the_number(self, number, answer):
         '''
         Зачеркивает номера в карточке с учетом ответа,
         в случае неверного ответа побеждает компьтер
@@ -159,46 +174,47 @@ class Card_for_player(Card_for_computer):
         :param answer: ответ игрока
         :return: в случае победы возвращает строку с победителем, иначе пустую строку
         '''
-        n=self.card.count(number)
-        if n==1 and answer=="y":
-            self.card[self.card.index(number)]="- "
+        n = self.card.count(number)
+        if n == 1 and answer == "y":
+            self.card[self.card.index(number)] = "- "
             return ""
-        elif (n==1 and answer=="n")or(n==0 and answer=="y"):
+        elif (n == 1 and answer == "n") or (n == 0 and answer == "y"):
             return "error"
         else:
             return ""
 
-player=Card_for_player("Player")
-computer=Card_for_computer("Computer")
-b=Bochonok()
-winner=""
-list_of_bochonki=[]
 
-while winner=="":
-    print("\n\n=================== turn - {} ====================".format(len(list_of_bochonki)+1))
+player = Card_for_player("Player")
+computer = Card_for_computer("Computer")
+b = Bochonok()
+winner = ""
+list_of_bochonki = []
+
+while winner == "":
+    print("\n\n=================== turn - {} ====================".format(len(list_of_bochonki) + 1))
     print("Ранее выпали номера: {}".format(list_of_bochonki))
     player.print_card()
     computer.print_card()
-    number=b.get_number(b.container)
+    number = b.get_number(b.container)
     list_of_bochonki.append(number)
     print("Выпал номер: {}".format(number))
     computer.cross_the_number(number)
-    answer=input("Зачеркнуть выпавший номер? (y/n)")
-    #проверка ответа игрока
-    while answer!="y" and answer!="n":
+    answer = input("Зачеркнуть выпавший номер? (y/n)")
+    # проверка ответа игрока
+    while answer != "y" and answer != "n":
         answer = input("Зачеркнуть выпавший номер? (y/n)")
 
     condition1 = player.cross_the_number(number, answer)
     condition2 = computer.check_the_win()
     condition3 = player.check_the_win()
-    if condition1=="error":
-        winner=computer.get_name()
-    elif condition2=="win" and condition3=="win":
+    if condition1 == "error":
+        winner = computer.get_name()
+    elif condition2 == "win" and condition3 == "win":
         print("Both win! so strange...")
-        winner="Friendship"
-    elif condition2=="win":
-        winner=computer.get_name()
-    elif condition3=="win":
+        winner = "Friendship"
+    elif condition2 == "win":
+        winner = computer.get_name()
+    elif condition3 == "win":
         winner = player.get_name()
-    if winner!="":
+    if winner != "":
         print("{} wins!!!".format(winner))
