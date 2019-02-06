@@ -46,7 +46,10 @@
 """
 
 import random
-class Randomizer:
+class Bochonok:
+    '''
+    класс Мешок с бочонками
+    '''
     def __init__(self):
         self.container=[]
         for i in range (1,91):
@@ -61,21 +64,18 @@ class Randomizer:
         container.remove(number)
         return number
 
-class Bochonok(Randomizer):
-    '''
-    класс Мешок с бочонками
-    '''
-    def __init__(self):
-        super().__init__()
-
-class Card_for_computer(Randomizer):
+class Card_for_computer(Bochonok):
     '''
     класс Лотерейная картока компьютера
     '''
-    def __init__(self):
+    def __init__(self, name):
         super().__init__()
-        self.card=[] #лотерейный билет
+        self.card = [] #лотерейный билет
         self.make_card()
+        self.__name = name
+
+    def get_name(self):
+        return self.__name
 
     def make_card(self):
         '''
@@ -106,7 +106,7 @@ class Card_for_computer(Randomizer):
         '''
         вывод карточки
         '''
-        print("-- Карточка компьютера ---")
+        print("-- {}'s lottery card ---".format(self.__name))
         s=["","",""]
         counter=0
         for i in self.card:
@@ -136,11 +136,11 @@ class Card_for_computer(Randomizer):
     def check_the_win(self):
         '''
         Проверка на выигрыш
-        :return:
+        :return:в случае победы возвращает строку с победителем, иначе пустую строку
         '''
         n = self.card.count("- ")
         if n==15:
-            return "computer wins!!!"
+            return "win"
         else:
             return ""
 
@@ -148,30 +148,8 @@ class Card_for_player(Card_for_computer):
     '''
     класс Лотерейная карточка игрока
     '''
-    def __init__(self):
-        super().__init__()
-
-    def print_card(self):
-        '''
-        Вывод карточки игрока
-        '''
-        print("------ Ваша карточка -----")
-        s = ["", "", ""]
-        counter = 0
-        for i in self.card:
-            if i != " " and i!="- ":
-                if int(i) // 10 == 0:
-                    s[counter % 3] += str(i) + "  "
-                else:
-                    s[counter % 3] += str(i) + " "
-            elif i==" ":
-                s[counter % 3] += str(i) + "  "
-            else:
-                s[counter % 3] += str(i) + " "
-            counter += 1
-        for i in s:
-            print(i)
-        print("--------------------------")
+    def __init__(self, name):
+        super().__init__(name)
 
     def cross_the_number(self,number,answer):
         '''
@@ -179,53 +157,47 @@ class Card_for_player(Card_for_computer):
         в случае неверного ответа побеждает компьтер
         :param number: номер, который нужно зачеркнуть
         :param answer: ответ игрока
-        :return:
+        :return: в случае победы возвращает строку с победителем, иначе пустую строку
         '''
         n=self.card.count(number)
         if n==1 and answer=="y":
             self.card[self.card.index(number)]="- "
             return ""
         elif (n==1 and answer=="n")or(n==0 and answer=="y"):
-            return "computer wins!!!"
+            return "error"
         else:
             return ""
 
-    def check_the_win(self):
-        '''
-        проверка выигрыша
-        :return:
-        '''
-        n = self.card.count("- ")
-        if n==15:
-            return "player wins!!!"
-        else:
-            return ""
-
-player=Card_for_player()
-computer=Card_for_computer()
+player=Card_for_player("Player")
+computer=Card_for_computer("Computer")
 b=Bochonok()
 winner=""
 list_of_bochonki=[]
 
 while winner=="":
-    print("=======================================")
-    print("Ранее выпали бочонки: {}".format(list_of_bochonki))
+    print("\n\n=================== turn - {} ====================".format(len(list_of_bochonki)+1))
+    print("Ранее выпали номера: {}".format(list_of_bochonki))
     player.print_card()
     computer.print_card()
     number=b.get_number(b.container)
     list_of_bochonki.append(number)
-    print("Выпал бочонок: {}".format(number))
+    print("Выпал номер: {}".format(number))
     computer.cross_the_number(number)
-    answer=input("Зачеркнуть цифру? (y/n)")
-    winner=player.cross_the_number(number,answer)
-    if winner!="":
-        print(winner)
-        break
-    winner=computer.check_the_win()
-    if winner!="":
-        print(winner)
-        break
-    winner=player.check_the_win()
-    if winner!="":
-        print(winner)
-        break
+    answer=input("Зачеркнуть выпавший номер? (y/n)")
+    #проверка ответа игрока
+    while answer!="y" and answer!="n":
+        answer = input("Зачеркнуть выпавший номер? (y/n)")
+
+    condition1 = player.cross_the_number(number, answer)
+    condition2 = computer.check_the_win()
+    condition3 = player.check_the_win()
+    if condition1=="error":
+        winner=computer.get_name()
+    elif condition2=="win" and condition3=="win":
+        print("Both win! so strange...")
+        winner="Friendship"
+    elif condition2=="win":
+        winner=computer.get_name()
+    elif condition3=="win":
+        winner = player.get_name()
+    print("{} wins!!!".format(winner))
